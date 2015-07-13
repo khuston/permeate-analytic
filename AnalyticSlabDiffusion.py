@@ -35,7 +35,7 @@
 
 import matplotlib.pyplot as plt
 import numpy as np
-from numpy import sin, cos, pi, exp
+from numpy import sin, cos, pi, exp, inf as infinity
 from scipy import optimize
 
 # x is dimensionless position (Position) / (Length)
@@ -85,7 +85,7 @@ def Theta(x,t,Bi):
 # Adjustable parameters
 L = 0.02                      # cm            Slab width
 D = 9e-7                      # cm**2/s       Diffusion coefficient
-h = np.inf                    # cm/s          Mass transfer coefficient at x=0 wall
+h = infinity                  # cm/s          Mass transfer coefficient at x=0 wall
 c_inf = 0.                    # mole/cm**3    Concentration at x=-infinity
 c_L = 2.                      # mole/cm**3    Concentration at x=L
 
