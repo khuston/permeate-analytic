@@ -20,6 +20,9 @@
 #  dc/dt = D d^2c/dx^2
 #  \frac{\partial c}{\partial t} = D \frac{\partial^2 c}{\partial x^2}
 #
+#  (I) Initial condition
+#  c(x) = c_inf
+#
 #  Schematic of steady-state solution to diffusion with large Biot number 
 #                
 #                        (A)        (C)      (B)
