@@ -113,7 +113,6 @@ class Slab:
             evaluate takes dimensional x and t. It converts them to dimensionless x/L and tD/L**2
             and returns a dimensional concentration based on the c_L and c_inf provided at initialization.
         """
-        as (c_L - c_inf)*Theta + c_inf
         L = self._L
         D = self._D
         Bi = self._Bi
@@ -121,13 +120,3 @@ class Slab:
         c_inf = self._c_inf
         eigv = self._eigv
         return Theta(x/L,t*D/L**2,Bi,eigv)*(c_L-c_inf)+c_inf
-
-# Example usage 
-#
-# import matplotlib.pyplot as plt
-#
-# slab = Slab(Bi=infinity, L=0.02, D=9e-7, c_L=2., c_inf=0., num_eigv=1000)
-# x = np.linspace(0,0.02)
-# for t in [1,3,10]:
-#    plt.plot(x,slab.evaluate(x,t))
-# plt.show()
