@@ -51,6 +51,7 @@
 import numpy as np
 from numpy import sin, cos, pi, exp, inf as infinity
 from scipy import optimize
+from scipy.special import erf
 
 # residual (i.e. left-hand side of equation f(eigv(k)) = 0) to calculate eigenvalues
 def eigv_residual(eigv_k,k,Bi):
@@ -81,6 +82,9 @@ def Theta_t(x,t,Bi,eigv):
 def Theta(x,t,Bi,eigv):
     return Theta_ss(x,Bi)+Theta_t(x,t,Bi,eigv)
 
+def Theta_short(x,t,D):
+    return -erf(x/(2*np.sqrt(D*t)))+1.
+
 class Slab:
     """
         Slab class for calculating concentration profile for some x,t in a slab.
@@ -96,7 +100,7 @@ class Slab:
         the Biot number, then you must call _calculate_eigv() before evaluating again, or else
         your answer will be wrong.
     """
-    def __init__(self,Bi,L,D,c_L,c_inf,num_eigv=1000):
+    def __init__(self,Bi,L,D,c_L,c_inf,num_eigv=100):
         self._Bi = Bi
         self._L = L
         self._D = D
@@ -119,4 +123,7 @@ class Slab:
         c_L = self._c_L
         c_inf = self._c_inf
         eigv = self._eigv
-        return Theta(x/L,t*D/L**2,Bi,eigv)*(c_L-c_inf)+c_inf
+        if t*D/L**2 > 0.001:
+            return Theta(x/L,t*D/L**2,Bi,eigv)*(c_L-c_inf)+c_inf
+        else:
+            return (Theta_short(x,t,D)*(c_L-c_inf)+c_inf)[::-1]
