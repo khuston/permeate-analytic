@@ -110,34 +110,37 @@ class Slab:
         These quantities are dimensional. The evaluate method converts x,t to 
         dimensionless x/L, tD/L**2 and returns a dimensional concentration as
         (c_L - c_inf)*Theta + c_inf where Theta is a dimensionless concentration.
-
-        Warning: evaluate(x,t) does not re-calculate eigenvalues, so if you manually change
-        the Biot number, then you must call _calculate_eigv() before evaluating again, or else
-        your answer will be wrong.
     """
     def __init__(self,Bi,L,D,c_L,c_inf,num_eigv=100):
-        self._Bi = Bi
-        self._L = L
-        self._D = D
-        self._c_L = c_L
-        self._c_inf = c_inf
-        self._num_eigv = num_eigv
-        self._calculate_eigv()
+        self.Bi = Bi
+        self.L = L
+        self.D = D
+        self.c_L = c_L
+        self.c_inf = c_inf
+        self.num_eigv = num_eigv
+        self._Bi = None
+        self._update_eigv()
         
-    def _calculate_eigv(self):
-        self._eigv = [optimize.newton(eigv_residual, x0=k, args=(k,self._Bi)) for k in range(self._num_eigv)]
+    def _update_eigv(self):
+        if self._Bi != self.Bi:
+            self.eigv = [optimize.newton(eigv_residual, x0=k, args=(k,self.Bi)) for k in range(self.num_eigv)]
+            self._Bi = self.Bi
+        else:
+            pass
 
     def evaluate(self,x,t):
         """
             evaluate takes dimensional x and t. It converts them to dimensionless x/L and tD/L**2
             and returns a dimensional concentration based on the c_L and c_inf provided at initialization.
         """
-        L = self._L
-        D = self._D
-        Bi = self._Bi
-        c_L = self._c_L
-        c_inf = self._c_inf
-        eigv = self._eigv
+        self._update_eigv()
+
+        L = self.L
+        D = self.D
+        Bi = self.Bi
+        c_L = self.c_L
+        c_inf = self.c_inf
+        eigv = self.eigv
         if t*D/L**2 > 0.001:
             return Theta(x/L,t*D/L**2,Bi,eigv)*(c_L-c_inf)+c_inf
         else:
