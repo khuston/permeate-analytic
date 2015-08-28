@@ -4,7 +4,7 @@
     boundary.
                                                                                
     Written by Kyle Huston on Monday, July 13, 2015
-    Last updated on Friday, August 14, 2015
+    Last updated on Friday, August 28, 2015
 
     This solution comes from the key of Prof. Charles Monroe's final exam
     for his transport class at the University of Michigan.
@@ -49,13 +49,16 @@
 """
 
 import numpy as np
-from numpy import sin, cos, pi, exp, inf as infinity
+from numpy import sin, cos, pi, exp, arctan, inf as infinity
 from scipy import optimize
 from scipy.special import erf
 
 # residual (i.e. left-hand side of equation f(eigv(k)) = 0) to calculate eigenvalues
 def eigv_residual(eigv_k,k,Bi):
-    return eigv_k + np.arctan(eigv_k/Bi) - k*pi
+    if Bi == 0:
+        return eigv_k + pi/2. - k*pi
+    else:
+        return eigv_k + arctan(eigv_k/Bi) - k*pi
 
 def T(t,eigv_k):
     return exp(-eigv_k**2*t)
@@ -67,6 +70,15 @@ def A(Bi,eigv_k):
     x = np.linspace(0,1,100)
     return -np.trapz(Theta_ss(x,Bi)*X(x,Bi,eigv_k),x)/np.trapz(X(x,Bi,eigv_k)**2,x)
 
+# NOTE: The noflux functions are only to be used _together_ and when Bi == 0
+#       because Biot number cancels out in no flux case
+def X_noflux(x,eigv_k):
+    return cos(eigv_k*x)
+
+def A_noflux(eigv_k):
+    x = np.linspace(0,1,100)
+    return -np.trapz(X_noflux(x,eigv_k),x)/np.trapz(X_noflux(x,eigv_k)**2,x)
+
 # steady-state solution
 def Theta_ss(x,Bi):
     if Bi < np.inf:
@@ -76,7 +88,10 @@ def Theta_ss(x,Bi):
 
 # time-dependent part of solution
 def Theta_t(x,t,Bi,eigv):
-    return np.sum(np.array([ A(Bi,eigv[k])*T(t,eigv[k])*X(x,Bi,eigv[k]) for k in range(1,len(eigv)-1)]),axis=0)
+    if Bi == 0:
+        return np.sum(np.array([ A_noflux(eigv[k])*T(t,eigv[k])*X_noflux(x,eigv[k]) for k in range(1,len(eigv)-1)]),axis=0)
+    else:
+        return np.sum(np.array([ A(Bi,eigv[k])*T(t,eigv[k])*X(x,Bi,eigv[k]) for k in range(1,len(eigv)-1)]),axis=0)
 
 # full solution
 def Theta(x,t,Bi,eigv):
